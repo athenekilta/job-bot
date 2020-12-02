@@ -1,6 +1,7 @@
 import json
 import time
 import requests
+import bot
 from bs4 import BeautifulSoup
 
 page = requests.get("https://athene.fi/jobs/")
@@ -23,9 +24,33 @@ def get_listings():
 
     return listings
 
+def update_data(data):
+    with open('data.json', "w") as outfile:
+        json.dump(data, outfile, indent=2) 
+
 data = {}
-data["active_jobs"] = get_listings()
+data['active_jobs'] = get_listings()
 
-with open('data.json', 'w') as outfile:
-    json.dump(data, outfile, indent=2)
+# Updates data.json when bot is started, so it doesn't spam if if has been off for a while
+update_data(data)
 
+print("Bot is running...")
+
+while True:
+    data_file = open('data.json')
+
+    old_listings = json.load(data_file)['active_jobs']
+    new_listings = get_listings()
+
+    if (old_listings != new_listings):
+        new_jobs = [item for item in old_listings if item not in new_listings]
+        for job in new_jobs:
+
+            job_title = job['job_title']
+            company = job['company']
+            link_to_job = job['link_to_job']
+
+            message = f"Hello there, *{company}* is searching for *{job_title}*. Read more from here... \n\n{link_to_job}"
+            bot.send_message(message)
+
+    time.sleep(10)
