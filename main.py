@@ -24,15 +24,14 @@ def get_listings():
 
     return listings
 
-def update_data(data):
+def update_data():
     with open('data.json', "w") as outfile:
+        data = {}
+        data['active_jobs'] = get_listings()
         json.dump(data, outfile, indent=2) 
 
-data = {}
-data['active_jobs'] = get_listings()
-
 # Updates data.json when bot is started, so it doesn't spam if if has been off for a while
-update_data(data)
+update_data()
 
 print("Bot is running...")
 
@@ -43,7 +42,7 @@ while True:
     new_listings = get_listings()
 
     if (old_listings != new_listings):
-        new_jobs = [item for item in old_listings if item not in new_listings]
+        new_jobs = [item for item in new_listings if item not in old_listings]
         for job in new_jobs:
 
             job_title = job['job_title']
@@ -52,5 +51,8 @@ while True:
 
             message = f"Hello there, *{company}* is searching for *{job_title}*. Read more from here... \n\n{link_to_job}"
             bot.send_message(message)
+        
+        # After sending messages, update data.json
+        update_data()
 
     time.sleep(10)

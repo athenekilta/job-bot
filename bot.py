@@ -12,6 +12,6 @@ except KeyError:
 
 bot = telebot.TeleBot(token, parse_mode="MARKDOWN")
 
-def send_message(chat_id, message_data):
+def send_message(message_data):
     bot.send_message(chat_id, message_data)
 
