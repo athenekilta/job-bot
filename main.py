@@ -4,13 +4,15 @@ import requests
 import bot
 from bs4 import BeautifulSoup
 
-page = requests.get("https://athene.fi/jobs/")
+def get_page():
+    return requests.get("https://athene.fi/jobs/")
 
-soup = BeautifulSoup(page.content, 'html.parser')
+def soup():
+    return BeautifulSoup(get_page().content, 'html.parser')
 
 def get_listings():
     listings = []
-    job_listings = soup.find('ul', {'class': 'job_listings'})
+    job_listings = soup().find('ul', {'class': 'job_listings'})
 
     for job_listing in job_listings.find_all('li', {'class': 'job_listing'}):
 
@@ -40,6 +42,8 @@ while True:
 
     old_listings = json.load(data_file)['active_jobs']
     new_listings = get_listings()
+    
+    data_file.close()
 
     if (old_listings != new_listings):
         new_jobs = [item for item in new_listings if item not in old_listings]
@@ -51,6 +55,7 @@ while True:
 
             message = f"Hello there, *{company}* is searching for *{job_title}*. Read more from here... \n\n{link_to_job}"
             bot.send_message(message)
+            print(message)
         
         # After sending messages, update data.json
         update_data()
