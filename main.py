@@ -16,6 +16,10 @@ def get_listings():
     listings = []
     job_listings = soup().find('ul', {'class': 'job_listings'})
 
+    if job_listings == None:
+        print("Error while fetching webpage...")
+        return []
+
     for job_listing in job_listings.find_all('li', {'class': 'job_listing'}):
 
         listing_data = {
